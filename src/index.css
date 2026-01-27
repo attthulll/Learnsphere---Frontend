@@ -1,0 +1,164 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* FULL SCREEN ROOT */
+html, body, #root {
+  width: 100%;
+  height: 100%;
+}
+
+/* GLOBAL THEME */
+body {
+  background: #0d0d0d;
+  color: white;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* GLOBAL PAGE CENTERING */
+.app-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* PAGE WIDTH CONTROL */
+.page {
+  width: 100%;
+  max-width: 1200px;
+  padding: 30px 20px;
+}
+
+/* ================= COURSE CARD HOVER ================= */
+
+.course-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.course-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* Image zoom */
+.course-card img {
+  transition: transform 0.35s ease;
+}
+
+.course-card:hover img {
+  transform: scale(1.05);
+}
+
+/* Button hover */
+.course-btn {
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.course-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+/* ================= STUDENT DASHBOARD HOVER ================= */
+
+.student-course-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.student-course-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 22px 45px rgba(0, 0, 0, 0.12);
+}
+
+/* Image zoom */
+.student-course-card img {
+  transition: transform 0.35s ease;
+}
+
+.student-course-card:hover img {
+  transform: scale(1.05);
+}
+
+/* Button hover */
+.student-continue-btn {
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.student-continue-btn:hover {
+  transform: translateY(-2px);
+  background: #1d4ed8;
+}
+
+
+/* ================= INSTRUCTOR DASHBOARD HOVER ================= */
+
+.instructor-course-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.instructor-course-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 22px 45px rgba(0, 0, 0, 0.12);
+}
+
+/* Thumbnail zoom */
+.instructor-course-card img {
+  transition: transform 0.35s ease;
+}
+
+.instructor-course-card:hover img {
+  transform: scale(1.05);
+}
+
+/* Action buttons */
+.instructor-action-btn {
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.instructor-action-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+}
+
+
+.footer-link:hover span {
+  width: 100%;
+}
+
+/* ================= CERTIFICATE PRINT FIX ================= */
+@media print {
+  /* Hide everything except certificate */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Show certificate only */
+  .certificate-print,
+  .certificate-print * {
+    visibility: visible;
+  }
+
+  /* Position certificate perfectly */
+  .certificate-print {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Remove button while printing */
+  .no-print {
+    display: none !important;
+  }
+
+  /* Force A4 */
+  @page {
+    size: A4;
+    margin: 20mm;
+  }
+}
