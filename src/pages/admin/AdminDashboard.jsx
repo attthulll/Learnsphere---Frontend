@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import apiClient from "../../api/axios.js";
 import {
   PieChart,
   Pie,
@@ -14,8 +14,6 @@ import {
 } from "recharts";
 
 
-const BACKEND = "http://localhost:5000";
-
 function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const token = localStorage.getItem("token");
@@ -27,9 +25,7 @@ function AdminDashboard() {
 
   const fetchStats = async () => {
     try {
-      const res = await axios.get(`${BACKEND}/api/admin/stats`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiClient.get(`/admin/stats`);
       setStats(res.data);
     } catch (err) {
       console.error("Admin stats error:", err);

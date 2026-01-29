@@ -1,9 +1,9 @@
 // src/pages/AllCoursesPage.jsx
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import axios from "axios";
+import apiClient from "../api/axios.js";
 
-const BACKEND_BASE = "http://localhost:5000";
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 function AllCoursesPage() {
   const [searchParams] = useSearchParams();
@@ -12,14 +12,14 @@ function AllCoursesPage() {
   const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState(
-  searchParams.get("search") || ""
-);
+    searchParams.get("search") || ""
+  );
 
   const [sortOption, setSortOption] = useState("newest");
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
-const ITEMS_PER_PAGE = 8;
+  const ITEMS_PER_PAGE = 8;
 
 
   const role = localStorage.getItem("role");
@@ -30,13 +30,13 @@ const ITEMS_PER_PAGE = 8;
   }, []);
 
   useEffect(() => {
-  setCurrentPage(1);
-}, [search, selectedCategory, sortOption]);
+    setCurrentPage(1);
+  }, [search, selectedCategory, sortOption]);
 
 
   const loadCategories = async () => {
     try {
-      const res = await axios.get(`${BACKEND_BASE}/api/categories`);
+      const res = await apiClient.get("/categories");
       setCategories(res.data || []);
     } catch (err) {
       console.log("Category load error:", err);
@@ -46,18 +46,18 @@ const ITEMS_PER_PAGE = 8;
   const resolveThumb = (thumb) => {
     if (!thumb) return null;
     if (thumb.startsWith("http")) return thumb;
-    if (thumb.startsWith("/")) return `${BACKEND_BASE}${thumb}`;
-    return `${BACKEND_BASE}/${thumb}`;
+    if (thumb.startsWith("/")) return `${API_BASE_URL}${thumb}`;
+    return `${API_BASE_URL}/${thumb}`;
   };
 
   const loadCourses = async () => {
     try {
       const url =
         selectedCategory === "all"
-          ? `${BACKEND_BASE}/api/courses`
-          : `${BACKEND_BASE}/api/courses?category=${selectedCategory}`;
+          ? "/courses"
+          : `/courses?category=${selectedCategory}`;
 
-      const res = await axios.get(url);
+      const res = await apiClient.get(url);
       setCourses(res.data || []);
     } catch (err) {
       setCourses([]);
@@ -76,7 +76,7 @@ const ITEMS_PER_PAGE = 8;
     );
   }
 
-if (sortOption === "newest") {
+  if (sortOption === "newest") {
     filteredCourses.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   } else if (sortOption === "oldest") {
     filteredCourses.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
@@ -93,14 +93,14 @@ if (sortOption === "newest") {
 
   const totalPages = Math.ceil(filteredCourses.length / ITEMS_PER_PAGE);
 
-const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-const paginatedCourses = filteredCourses.slice(
-  startIndex,
-  startIndex + ITEMS_PER_PAGE
-);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedCourses = filteredCourses.slice(
+    startIndex,
+    startIndex + ITEMS_PER_PAGE
+  );
 
 
-  
+
   if (loading) {
     return (
       <div style={loader}>
@@ -174,15 +174,15 @@ const paginatedCourses = filteredCourses.slice(
                   <h3 style={courseTitle}>{c.title}</h3>
 
                   {/* ⭐ RATING */}
-{/* ⭐ RATING */}
-{c.reviewCount > 0 && (
-  <div style={ratingRow}>
-    <span style={stars}>⭐</span>
-    <span style={ratingText}>
-      {c.avgRating.toFixed(1)} ({c.reviewCount})
-    </span>
-  </div>
-)}
+                  {/* ⭐ RATING */}
+                  {c.reviewCount > 0 && (
+                    <div style={ratingRow}>
+                      <span style={stars}>⭐</span>
+                      <span style={ratingText}>
+                        {c.avgRating.toFixed(1)} ({c.reviewCount})
+                      </span>
+                    </div>
+                  )}
 
 
                   <p style={desc}>
@@ -222,38 +222,38 @@ const paginatedCourses = filteredCourses.slice(
           })}
         </div>
         {/* PAGINATION */}
-{totalPages > 1 && (
-  <div style={pagination}>
-    <button
-      style={pageBtn}
-      disabled={currentPage === 1}
-      onClick={() => setCurrentPage((p) => p - 1)}
-    >
-      ← Prev
-    </button>
+        {totalPages > 1 && (
+          <div style={pagination}>
+            <button
+              style={pageBtn}
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((p) => p - 1)}
+            >
+              ← Prev
+            </button>
 
-    {Array.from({ length: totalPages }).map((_, i) => (
-      <button
-        key={i}
-        style={{
-          ...pageBtn,
-          ...(currentPage === i + 1 ? activePageBtn : {}),
-        }}
-        onClick={() => setCurrentPage(i + 1)}
-      >
-        {i + 1}
-      </button>
-    ))}
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <button
+                key={i}
+                style={{
+                  ...pageBtn,
+                  ...(currentPage === i + 1 ? activePageBtn : {}),
+                }}
+                onClick={() => setCurrentPage(i + 1)}
+              >
+                {i + 1}
+              </button>
+            ))}
 
-    <button
-      style={pageBtn}
-      disabled={currentPage === totalPages}
-      onClick={() => setCurrentPage((p) => p + 1)}
-    >
-      Next →
-    </button>
-  </div>
-)}
+            <button
+              style={pageBtn}
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((p) => p + 1)}
+            >
+              Next →
+            </button>
+          </div>
+        )}
 
       </div>
     </div>

@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import apiClient from "../api/axios.js";
 
-const BACKEND_BASE = "http://localhost:5000";
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 function InstructorDashboard() {
   const [courses, setCourses] = useState([]);
   const ITEMS_PER_PAGE = 8; // you can change later
-const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const token = localStorage.getItem("token");
 
@@ -17,16 +17,13 @@ const [currentPage, setCurrentPage] = useState(1);
   const resolveThumb = (thumb) => {
     if (!thumb) return null;
     if (thumb.startsWith("http")) return thumb;
-    if (thumb.startsWith("/")) return `${BACKEND_BASE}${thumb}`;
-    return `${BACKEND_BASE}/${thumb}`;
+    if (thumb.startsWith("/")) return `${API_BASE_URL}${thumb}`;
+    return `${API_BASE_URL}/${thumb}`;
   };
 
   const loadCourses = async () => {
     try {
-      const res = await axios.get(
-        `${BACKEND_BASE}/api/courses/instructor/my-courses`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await apiClient.get("/courses/instructor/my-courses");
       setCourses(res.data || []);
     } catch (err) {
       console.log("Instructor load error:", err);
@@ -37,9 +34,7 @@ const [currentPage, setCurrentPage] = useState(1);
     if (!confirm("Are you sure you want to delete this course?")) return;
 
     try {
-      await axios.delete(`${BACKEND_BASE}/api/courses/${id}/delete`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await apiClient.delete(`/courses/${id}/delete`);
 
       alert("Course deleted");
       loadCourses();
@@ -51,11 +46,11 @@ const [currentPage, setCurrentPage] = useState(1);
 
   const totalPages = Math.ceil(courses.length / ITEMS_PER_PAGE);
 
-const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-const paginatedCourses = courses.slice(
-  startIndex,
-  startIndex + ITEMS_PER_PAGE
-);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedCourses = courses.slice(
+    startIndex,
+    startIndex + ITEMS_PER_PAGE
+  );
 
   return (
     <div style={page}>
@@ -88,10 +83,10 @@ const paginatedCourses = courses.slice(
 
             return (
               <div
-  key={course._id}
-  style={card}
-  className="instructor-course-card"
->
+                key={course._id}
+                style={card}
+                className="instructor-course-card"
+              >
 
                 {/* THUMBNAIL */}
                 {thumb ? (
@@ -119,7 +114,7 @@ const paginatedCourses = courses.slice(
                       onClick={() =>
                         (window.location.href = `/course/${course._id}/edit`)
                       }
-                      style={editBtn}className="instructor-action-btn"
+                      style={editBtn} className="instructor-action-btn"
                     >
                       Edit Course
                     </button>
@@ -128,14 +123,14 @@ const paginatedCourses = courses.slice(
                       onClick={() =>
                         (window.location.href = `/course/${course._id}/add-module`)
                       }
-                      style={modulesBtn}className="instructor-action-btn"
+                      style={modulesBtn} className="instructor-action-btn"
                     >
                       Manage Modules
                     </button>
 
                     <button
                       onClick={() => deleteCourse(course._id)}
-                      style={deleteBtn}className="instructor-action-btn"
+                      style={deleteBtn} className="instructor-action-btn"
                     >
                       Delete
                     </button>
@@ -146,38 +141,38 @@ const paginatedCourses = courses.slice(
           })}
         </div>
         {totalPages > 1 && (
-  <div style={pagination}>
-    <button
-      disabled={currentPage === 1}
-      onClick={() => setCurrentPage((p) => p - 1)}
-      style={pageBtn}
-    >
-      ← Prev
-    </button>
+          <div style={pagination}>
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((p) => p - 1)}
+              style={pageBtn}
+            >
+              ← Prev
+            </button>
 
-    {Array.from({ length: totalPages }).map((_, i) => (
-      <button
-        key={i}
-        onClick={() => setCurrentPage(i + 1)}
-        style={{
-          ...pageBtn,
-          background: currentPage === i + 1 ? "#2563eb" : "white",
-          color: currentPage === i + 1 ? "white" : "#1f2937",
-        }}
-      >
-        {i + 1}
-      </button>
-    ))}
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentPage(i + 1)}
+                style={{
+                  ...pageBtn,
+                  background: currentPage === i + 1 ? "#2563eb" : "white",
+                  color: currentPage === i + 1 ? "white" : "#1f2937",
+                }}
+              >
+                {i + 1}
+              </button>
+            ))}
 
-    <button
-      disabled={currentPage === totalPages}
-      onClick={() => setCurrentPage((p) => p + 1)}
-      style={pageBtn}
-    >
-      Next →
-    </button>
-  </div>
-)}
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((p) => p + 1)}
+              style={pageBtn}
+            >
+              Next →
+            </button>
+          </div>
+        )}
 
       </div>
     </div>

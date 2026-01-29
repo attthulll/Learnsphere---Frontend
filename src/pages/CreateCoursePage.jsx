@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import apiClient from "../api/axios.js";
 
 function CreateCoursePage() {
   const [title, setTitle] = useState("");
@@ -13,7 +13,7 @@ function CreateCoursePage() {
   useEffect(() => {
     const loadCategories = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/categories");
+        const res = await apiClient.get("/categories");
         setCategories(res.data);
       } catch (err) {
         console.error("Failed to load categories");
@@ -26,8 +26,6 @@ function CreateCoursePage() {
     e.preventDefault();
 
     try {
-      const token = localStorage.getItem("token");
-
       const formData = new FormData();
       formData.append("title", title);
       formData.append("description", description);
@@ -35,12 +33,11 @@ function CreateCoursePage() {
       formData.append("category", category);
       formData.append("thumbnail", thumbnail);
 
-      await axios.post(
-        "http://localhost:5000/api/courses/create",
+      await apiClient.post(
+        "/courses/create",
         formData,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
         }

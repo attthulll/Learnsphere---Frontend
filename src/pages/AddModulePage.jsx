@@ -1,7 +1,7 @@
 // src/pages/AddModulePage.jsx
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import apiClient from "../api/axios.js";
 
 function AddModulePage() {
   const { id } = useParams(); // Course ID
@@ -22,10 +22,7 @@ function AddModulePage() {
   /* ---------------- LOAD MODULES ---------------- */
   const loadModules = async () => {
     try {
-      const res = await axios.get(
-        `http://localhost:5000/api/courses/${id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await apiClient.get(`/courses/${id}`);
       setModules(res.data.course.modules || []);
     } catch (err) {
       console.error("Error loading modules:", err);
@@ -37,11 +34,11 @@ function AddModulePage() {
     e.preventDefault();
 
     try {
-      await axios.post(
-        `http://localhost:5000/api/courses/${id}/modules`,
-        { title, videoUrl, pdfUrl },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await apiClient.post(`/courses/${id}/modules`, {
+        title,
+        videoUrl,
+        pdfUrl,
+      });
 
       alert("Module added!");
       setTitle("");
@@ -59,10 +56,7 @@ function AddModulePage() {
     if (!window.confirm("Delete this module?")) return;
 
     try {
-      await axios.delete(
-        `http://localhost:5000/api/courses/${id}/module/${moduleId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await apiClient.delete(`/courses/${id}/module/${moduleId}`);
 
       alert("Module deleted");
       loadModules();

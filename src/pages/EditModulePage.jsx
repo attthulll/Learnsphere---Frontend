@@ -1,7 +1,7 @@
 // src/pages/EditModulePage.jsx
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import apiClient from "../api/axios.js";
 
 function EditModulePage() {
   const { courseId, moduleId } = useParams();
@@ -17,10 +17,7 @@ function EditModulePage() {
   useEffect(() => {
     const loadModule = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:5000/api/courses/${courseId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        const res = await apiClient.get(`/courses/${courseId}`);
 
         const course = res.data.course;
         if (!course) {
@@ -57,10 +54,9 @@ function EditModulePage() {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(
-        `http://localhost:5000/api/courses/${courseId}/module/${moduleId}`,
-        { title, videoUrl, pdfUrl },
-        { headers: { Authorization: `Bearer ${token}` } }
+      await apiClient.put(
+        `/courses/${courseId}/module/${moduleId}`,
+        { title, videoUrl, pdfUrl }
       );
 
       alert("Module updated");

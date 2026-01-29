@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-
-const BACKEND = "http://localhost:5000";
+import apiClient from "../../api/axios.js";
 
 function AdminInstructorRequests() {
   const [instructors, setInstructors] = useState([]);
@@ -13,27 +11,24 @@ function AdminInstructorRequests() {
   }, []);
 
   const loadRequests = async () => {
-    const res = await axios.get(
-      `${BACKEND}/api/admin/instructors/pending`,
-      { headers: { Authorization: `Bearer ${token}` } }
+    const res = await apiClient.get(
+      `/admin/instructors/pending`
     );
     setInstructors(res.data);
   };
 
   const approve = async (id) => {
-    await axios.put(
-      `${BACKEND}/api/admin/instructors/${id}/approve`,
-      {},
-      { headers: { Authorization: `Bearer ${token}` } }
+    await apiClient.put(
+      `/admin/instructors/${id}/approve`,
+      {}
     );
     loadRequests();
   };
 
   const reject = async (id) => {
-    await axios.put(
-      `${BACKEND}/api/admin/instructors/${id}/reject`,
-      {},
-      { headers: { Authorization: `Bearer ${token}` } }
+    await apiClient.put(
+      `/admin/instructors/${id}/reject`,
+      {}
     );
     loadRequests();
   };

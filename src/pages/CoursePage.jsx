@@ -1,10 +1,9 @@
 // src/pages/CoursePage.jsx
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import apiClient from "../api/axios.js";
 
-const BACKEND_BASE = "http://localhost:5000";
-
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 const RAZORPAY_KEY = "rzp_test_RnqBv8eN2d8YV6";
 
 function CoursePage() {
@@ -12,20 +11,20 @@ function CoursePage() {
   const [courseData, setCourseData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [reviews, setReviews] = useState([]);
-const [avgRating, setAvgRating] = useState(0);
-const [rating, setRating] = useState(5);
-const [comment, setComment] = useState("");
+  const [avgRating, setAvgRating] = useState(0);
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState("");
 
 
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
 
   const resolveThumb = (thumb) => {
-  if (!thumb) return null;
-  if (thumb.startsWith("http")) return thumb;
-  if (thumb.startsWith("/")) return `${BACKEND_BASE}${thumb}`;
-  return `${BACKEND_BASE}/${thumb}`;
-};
+    if (!thumb) return null;
+    if (thumb.startsWith("http")) return thumb;
+    if (thumb.startsWith("/")) return `${API_BASE_URL}${thumb}`;
+    return `${API_BASE_URL}/${thumb}`;
+  };
 
   useEffect(() => {
     loadCourse();
@@ -34,10 +33,7 @@ const [comment, setComment] = useState("");
 
   const loadCourse = async () => {
     try {
-      const res = await axios.get(
-        `http://localhost:5000/api/courses/view/${id}`,
-        token ? { headers: { Authorization: `Bearer ${token}` } } : {}
-      );
+      const res = await apiClient.get(`/courses/view/${id}`);
 
       setCourseData(res.data);
       setLoading(false);
@@ -48,24 +44,21 @@ const [comment, setComment] = useState("");
   };
 
   const loadReviews = async () => {
-  try {
-    const res = await axios.get(
-      `http://localhost:5000/api/courses/${id}/reviews`
-    );
-    setReviews(res.data.reviews);
-    setAvgRating(res.data.averageRating);
-  } catch (err) {
-    console.error("Load reviews error:", err);
-  }
-};
+    try {
+      const res = await apiClient.get(`/courses/${id}/reviews`);
+      setReviews(res.data.reviews);
+      setAvgRating(res.data.averageRating);
+    } catch (err) {
+      console.error("Load reviews error:", err);
+    }
+  };
 
 
   const buyCourse = async () => {
     try {
-      const orderRes = await axios.post(
-        "http://localhost:5000/api/payments/create-order",
-        { amount: courseData.course.price }
-      );
+      const orderRes = await apiClient.post("/payments/create-order", {
+        amount: courseData.course.price,
+      });
 
       const order = orderRes.data;
 
@@ -77,16 +70,15 @@ const [comment, setComment] = useState("");
         description: courseData.course.title,
         order_id: order.id,
         handler: async function (response) {
-          await axios.post("http://localhost:5000/api/payments/verify-payment", {
+          await apiClient.post("/payments/verify-payment", {
             razorpay_order_id: response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,
             razorpay_signature: response.razorpay_signature,
           });
 
-          await axios.post(
-            `http://localhost:5000/api/courses/${courseData.course._id}/enroll`,
-            {},
-            { headers: { Authorization: `Bearer ${token}` } }
+          await apiClient.post(
+            `/courses/${courseData.course._id}/enroll`,
+            {}
           );
 
           alert("Payment successful — enrolled!");
@@ -103,21 +95,20 @@ const [comment, setComment] = useState("");
   };
 
   const submitReview = async () => {
-  try {
-    await axios.post(
-      `http://localhost:5000/api/courses/${course._id}/review`,
-      { rating, comment },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+    try {
+      await apiClient.post(`/courses/${course._id}/review`, {
+        rating,
+        comment,
+      });
 
-    alert("Review submitted");
-    setRating("");
-    setComment("");
-    loadCourse();
-  } catch (err) {
-    alert(err.response?.data?.message || "Review failed");
-  }
-};
+      alert("Review submitted");
+      setRating("");
+      setComment("");
+      loadCourse();
+    } catch (err) {
+      alert(err.response?.data?.message || "Review failed");
+    }
+  };
 
 
   if (loading) return <h2 style={{ padding: 40 }}>Loading...</h2>;
@@ -134,27 +125,27 @@ const [comment, setComment] = useState("");
           <h1 style={title}>{course.title}</h1>
           <p style={desc}>{course.description}</p>
           <p style={instructor}>
-  Instructor:{" "}
-  <span
-    style={{ color: "#2563eb", cursor: "pointer" }}
-    onClick={() =>
-      window.location.href = `/instructor/${course.instructor._id}`
-    }
-  >
-    {course.instructor?.name}
-  </span>
-</p>
+            Instructor:{" "}
+            <span
+              style={{ color: "#2563eb", cursor: "pointer" }}
+              onClick={() =>
+                window.location.href = `/instructor/${course.instructor._id}`
+              }
+            >
+              {course.instructor?.name}
+            </span>
+          </p>
 
         </div>
 
         <div style={priceCard}>
           {course.thumbnail && (
-  <img
-    src={resolveThumb(course.thumbnail)}
-    alt={course.title}
-    style={thumbnail}
-  />
-)}
+            <img
+              src={resolveThumb(course.thumbnail)}
+              alt={course.title}
+              style={thumbnail}
+            />
+          )}
 
 
           <h2 style={price}>₹{course.price}</h2>
@@ -178,15 +169,15 @@ const [comment, setComment] = useState("");
           )}
 
           {role === "student" && isEnrolled && (
-  <button
-    style={{ ...startBtn, marginTop: 10, background: "#16a34a" }}
-    onClick={() =>
-      window.location.href = `/course/${course._id}/certificate`
-    }
-  >
-    View Certificate 🎓
-  </button>
-)}
+            <button
+              style={{ ...startBtn, marginTop: 10, background: "#16a34a" }}
+              onClick={() =>
+                window.location.href = `/course/${course._id}/certificate`
+              }
+            >
+              View Certificate 🎓
+            </button>
+          )}
 
 
           {role === "instructor" && (
@@ -248,71 +239,71 @@ const [comment, setComment] = useState("");
           </div>
         ))}
         {role === "student" && !isEnrolled && (
-  <p style={{ color: "#64748b", marginBottom: 10 }}>
-    Enroll in this course to submit a review.
-  </p>
-)}
+          <p style={{ color: "#64748b", marginBottom: 10 }}>
+            Enroll in this course to submit a review.
+          </p>
+        )}
 
       </div>
-     {/* ================= REVIEWS ================= */}
-<div style={{ maxWidth: 1200, margin: "60px auto" }}>
-  <h2 style={{ fontSize: 28, marginBottom: 6,color: "#111827" }}>
-    Reviews & Ratings
-  </h2>
+      {/* ================= REVIEWS ================= */}
+      <div style={{ maxWidth: 1200, margin: "60px auto" }}>
+        <h2 style={{ fontSize: 28, marginBottom: 6, color: "#111827" }}>
+          Reviews & Ratings
+        </h2>
 
-  <p style={{ color: "#475569", marginBottom: 24 }}>
-    ⭐ Average Rating: <strong>{avgRating}</strong> / 5
-  </p>
+        <p style={{ color: "#475569", marginBottom: 24 }}>
+          ⭐ Average Rating: <strong>{avgRating}</strong> / 5
+        </p>
 
-  {/* ---------- ADD REVIEW ---------- */}
-  {role === "student" && isEnrolled && (
-    <div style={reviewForm}>
-      <h3 style={{ marginBottom: 12 }}>Leave a Review</h3>
+        {/* ---------- ADD REVIEW ---------- */}
+        {role === "student" && isEnrolled && (
+          <div style={reviewForm}>
+            <h3 style={{ marginBottom: 12 }}>Leave a Review</h3>
 
-      <select
-        value={rating}
-        onChange={(e) => setRating(Number(e.target.value))}
-        style={ratingSelect}
-      >
-        <option value="">Select Rating</option>
-        {[5, 4, 3, 2, 1].map((n) => (
-          <option key={n} value={n}>
-            {n} ⭐
-          </option>
-        ))}
-      </select>
+            <select
+              value={rating}
+              onChange={(e) => setRating(Number(e.target.value))}
+              style={ratingSelect}
+            >
+              <option value="">Select Rating</option>
+              {[5, 4, 3, 2, 1].map((n) => (
+                <option key={n} value={n}>
+                  {n} ⭐
+                </option>
+              ))}
+            </select>
 
-      <textarea
-        placeholder="Share your experience with this course..."
-        value={comment}
-        onChange={(e) => setComment(e.target.value)}
-        style={reviewTextarea}
-      />
+            <textarea
+              placeholder="Share your experience with this course..."
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              style={reviewTextarea}
+            />
 
-      <button style={{ ...buyBtn, width: "fit-content" }} onClick={submitReview}>
-        Submit Review
-      </button>
-    </div>
-  )}
+            <button style={{ ...buyBtn, width: "fit-content" }} onClick={submitReview}>
+              Submit Review
+            </button>
+          </div>
+        )}
 
-  {/* ---------- REVIEWS LIST ---------- */}
-  {reviews.length === 0 && (
-    <p style={{ color: "#64748b" }}>No reviews yet.</p>
-  )}
+        {/* ---------- REVIEWS LIST ---------- */}
+        {reviews.length === 0 && (
+          <p style={{ color: "#64748b" }}>No reviews yet.</p>
+        )}
 
-  <div style={reviewGrid}>
-    {reviews.map((r) => (
-      <div key={r._id} style={reviewCard}>
-        <div style={reviewHeader}>
-          <strong>{r.student?.name || "Student"}</strong>
-          <span style={ratingBadge}>{r.rating} ⭐</span>
+        <div style={reviewGrid}>
+          {reviews.map((r) => (
+            <div key={r._id} style={reviewCard}>
+              <div style={reviewHeader}>
+                <strong>{r.student?.name || "Student"}</strong>
+                <span style={ratingBadge}>{r.rating} ⭐</span>
+              </div>
+
+              <p style={reviewText}>{r.comment}</p>
+            </div>
+          ))}
         </div>
-
-        <p style={reviewText}>{r.comment}</p>
       </div>
-    ))}
-  </div>
-</div>
 
 
     </div>

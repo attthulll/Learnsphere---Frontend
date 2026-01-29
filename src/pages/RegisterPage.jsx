@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import apiClient from "../api/axios.js";
 
 function RegisterPage() {
   const [name, setName] = useState("");
@@ -10,35 +10,35 @@ function RegisterPage() {
   const [message, setMessage] = useState("");
 
   const isValidName = (name) => {
-  return /^[A-Za-z ]{2,}$/.test(name.trim());
-};
+    return /^[A-Za-z ]{2,}$/.test(name.trim());
+  };
 
- const handleRegister = async (e) => {
-  e.preventDefault();
+  const handleRegister = async (e) => {
+    e.preventDefault();
 
-  // ❌ NAME VALIDATION
-  if (!isValidName(name)) {
-    setMessage("Name should contain only letters and spaces");
-    return;
-  }
+    // ❌ NAME VALIDATION
+    if (!isValidName(name)) {
+      setMessage("Name should contain only letters and spaces");
+      return;
+    }
 
-  try {
-    await axios.post("http://localhost:5000/api/auth/register", {
-      name,
-      email,
-      password,
-      role,
-    });
+    try {
+      await apiClient.post("/auth/register", {
+        name,
+        email,
+        password,
+        role,
+      });
 
-    setMessage("Registration successful! Redirecting to login...");
+      setMessage("Registration successful! Redirecting to login...");
 
-    setTimeout(() => {
-      window.location.href = "/login";
-    }, 1500);
-  } catch (err) {
-    setMessage(err.response?.data?.message || "Registration failed");
-  }
-};
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 1500);
+    } catch (err) {
+      setMessage(err.response?.data?.message || "Registration failed");
+    }
+  };
 
 
   return (
@@ -69,31 +69,31 @@ function RegisterPage() {
           />
 
           <div style={{ position: "relative" }}>
-  <input
-    type={showPassword ? "text" : "password"}
-    placeholder="Password"
-    value={password}
-    onChange={(e) => setPassword(e.target.value)}
-    style={{ ...input, paddingRight: 44 }}
-    required
-  />
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={{ ...input, paddingRight: 44 }}
+              required
+            />
 
-  <span
-    onClick={() => setShowPassword(!showPassword)}
-    style={{
-      position: "absolute",
-      right: 14,
-      top: "50%",
-      transform: "translateY(-50%)",
-      cursor: "pointer",
-      fontSize: 14,
-      color: "#475569",
-      userSelect: "none",
-    }}
-  >
-    {showPassword ? "👁" : "⌣"}
-  </span>
-</div>
+            <span
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                position: "absolute",
+                right: 14,
+                top: "50%",
+                transform: "translateY(-50%)",
+                cursor: "pointer",
+                fontSize: 14,
+                color: "#475569",
+                userSelect: "none",
+              }}
+            >
+              {showPassword ? "👁" : "⌣"}
+            </span>
+          </div>
 
 
           {/* ROLE SELECTION (UNCHANGED LOGIC) */}

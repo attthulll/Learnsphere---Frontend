@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import apiClient from "../api/axios.js";
 
-const BACKEND = "http://localhost:5000";
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const resolveThumb = (thumb) => {
   if (!thumb) return null;
   if (thumb.startsWith("http")) return thumb;
-  if (thumb.startsWith("/")) return `${BACKEND}${thumb}`;
-  return `${BACKEND}/${thumb}`;
+  if (thumb.startsWith("/")) return `${API_BASE_URL}${thumb}`;
+  return `${API_BASE_URL}/${thumb}`;
 };
 
 function InstructorProfilePage() {
@@ -21,8 +21,8 @@ function InstructorProfilePage() {
 
   const loadProfile = async () => {
     try {
-      const res = await axios.get(
-        `${BACKEND}/api/courses/instructor/${instructorId}`
+      const res = await apiClient.get(
+        `/courses/instructor/${instructorId}`
       );
       setData(res.data);
     } catch (err) {
@@ -54,24 +54,24 @@ function InstructorProfilePage() {
         <div style={grid}>
           {courses.map((c) => (
             <div
-  key={c._id}
-  style={card}
-  onClick={() => (window.location.href = `/course/${c._id}`)}
->
-  {/* COURSE THUMBNAIL */}
-  {c.thumbnail && (
-    <img
-      src={resolveThumb(c.thumbnail)}
-      alt={c.title}
-      style={thumb}
-      onError={(e) => (e.currentTarget.style.display = "none")}
-    />
-  )}
+              key={c._id}
+              style={card}
+              onClick={() => (window.location.href = `/course/${c._id}`)}
+            >
+              {/* COURSE THUMBNAIL */}
+              {c.thumbnail && (
+                <img
+                  src={resolveThumb(c.thumbnail)}
+                  alt={c.title}
+                  style={thumb}
+                  onError={(e) => (e.currentTarget.style.display = "none")}
+                />
+              )}
 
-  <h3 style={courseTitle}>{c.title}</h3>
-  <p style={desc}>{c.description?.substring(0, 80)}...</p>
-  <p style={price}>₹{c.price}</p>
-</div>
+              <h3 style={courseTitle}>{c.title}</h3>
+              <p style={desc}>{c.description?.substring(0, 80)}...</p>
+              <p style={price}>₹{c.price}</p>
+            </div>
 
           ))}
         </div>

@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-
-const BACKEND = "http://localhost:5000";
+import apiClient from "../../api/axios.js";
 
 function CategoryManager() {
   const [categories, setCategories] = useState([]);
@@ -18,7 +16,7 @@ function CategoryManager() {
 
   const loadCategories = async () => {
     try {
-      const res = await axios.get(`${BACKEND}/api/categories`);
+      const res = await apiClient.get(`/categories`);
       setCategories(res.data);
     } catch (err) {
       console.log("Load category error:", err);
@@ -30,10 +28,9 @@ function CategoryManager() {
     if (!name.trim()) return alert("Enter category name");
 
     try {
-      await axios.post(
-        `${BACKEND}/api/categories`,
-        { name },
-        { headers: { Authorization: `Bearer ${token}` } }
+      await apiClient.post(
+        `/categories`,
+        { name }
       );
 
       setName("");

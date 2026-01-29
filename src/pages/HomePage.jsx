@@ -1,6 +1,6 @@
 // src/pages/HomePage.jsx
 import { useEffect, useState } from "react";
-import axios from "axios";
+import apiClient from "../api/axios.js";
 
 const HERO_IMAGES = [
   "https://images.unsplash.com/photo-1522202176988-66273c2fd55f",
@@ -8,8 +8,7 @@ const HERO_IMAGES = [
   "https://images.unsplash.com/photo-1503676260728-1c00da094a0b",
 ];
 
-const BACKEND_BASE = "http://localhost:5000";
-
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 function HomePage() {
   const [courses, setCourses] = useState([]);
@@ -24,7 +23,7 @@ function HomePage() {
 
   const loadFeaturedCourses = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/courses");
+      const res = await apiClient.get("/courses");
       setCourses(res.data.slice(0, 4));
     } catch (err) {
       console.log("Home load error:", err);
@@ -32,13 +31,13 @@ function HomePage() {
   };
 
   const resolveThumb = (thumb) => {
-  if (!thumb) return null;
-  if (thumb.startsWith("http")) return thumb;
-  if (thumb.startsWith("/")) return `${BACKEND_BASE}${thumb}`;
-  return `${BACKEND_BASE}/${thumb}`;
-};
+    if (!thumb) return null;
+    if (thumb.startsWith("http")) return thumb;
+    if (thumb.startsWith("/")) return `${API_BASE_URL}${thumb}`;
+    return `${API_BASE_URL}/${thumb}`;
+  };
 
- 
+
   /* ---------------- HERO CAROUSEL ---------------- */
   useEffect(() => {
     const interval = setInterval(() => {
@@ -79,31 +78,31 @@ function HomePage() {
 
           <div style={searchWrap}>
             <input
-  placeholder="What do you want to learn?"
-  style={searchInput}
-  value={searchText}
-  onChange={(e) => setSearchText(e.target.value)}
-  onKeyDown={(e) => {
-    if (e.key === "Enter" && searchText.trim()) {
-      window.location.href = `/courses?search=${encodeURIComponent(
-        searchText
-      )}`;
-    }
-  }}
-/>
+              placeholder="What do you want to learn?"
+              style={searchInput}
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && searchText.trim()) {
+                  window.location.href = `/courses?search=${encodeURIComponent(
+                    searchText
+                  )}`;
+                }
+              }}
+            />
 
             <button
-  style={searchBtn}
-  onClick={() => {
-    if (searchText.trim()) {
-      window.location.href = `/courses?search=${encodeURIComponent(
-        searchText
-      )}`;
-    }
-  }}
->
-  Search
-</button>
+              style={searchBtn}
+              onClick={() => {
+                if (searchText.trim()) {
+                  window.location.href = `/courses?search=${encodeURIComponent(
+                    searchText
+                  )}`;
+                }
+              }}
+            >
+              Search
+            </button>
 
           </div>
 
@@ -166,58 +165,58 @@ function HomePage() {
 
         <div style={courseGrid}>
           {courses.map((course) => {
-  const thumb = resolveThumb(course.thumbnail);
+            const thumb = resolveThumb(course.thumbnail);
 
-  return (
-    <div
-  key={course._id}
-  style={courseCard}
-  onClick={() => (window.location.href = `/course/${course._id}`)}
-  onMouseEnter={(e) => {
-    e.currentTarget.style.transform = "translateY(-6px)";
-    e.currentTarget.style.boxShadow =
-      "0 18px 40px rgba(0,0,0,0.15)";
-  }}
-  onMouseLeave={(e) => {
-    e.currentTarget.style.transform = "translateY(0)";
-    e.currentTarget.style.boxShadow =
-      "0 6px 20px rgba(0,0,0,0.08)";
-  }}
->
+            return (
+              <div
+                key={course._id}
+                style={courseCard}
+                onClick={() => (window.location.href = `/course/${course._id}`)}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-6px)";
+                  e.currentTarget.style.boxShadow =
+                    "0 18px 40px rgba(0,0,0,0.15)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow =
+                    "0 6px 20px rgba(0,0,0,0.08)";
+                }}
+              >
 
-      {thumb && (
-        <img
-          src={thumb}
-          alt={course.title}
-          style={courseImg}
-          onError={(e) => (e.target.style.display = "none")}
-        />
-      )}
+                {thumb && (
+                  <img
+                    src={thumb}
+                    alt={course.title}
+                    style={courseImg}
+                    onError={(e) => (e.target.style.display = "none")}
+                  />
+                )}
 
-      <div style={courseBody}>
-        <h3>{course.title}</h3>
-        {/* ⭐ RATING */}
-  {course.avgRating > 0 && (
-    <div style={ratingRow}>
-      <span style={stars}>
-        {"★".repeat(Math.round(course.avgRating))}
-      </span>
-      <span style={ratingText}>
-        {course.avgRating.toFixed(1)}
-        {course.reviewCount
-          ? ` (${course.reviewCount})`
-          : ""}
-      </span>
-    </div>
-  )}
-        <p style={desc}>
-          {course.description?.substring(0, 80)}...
-        </p>
-        <p style={price}>₹{course.price}</p>
-      </div>
-    </div>
-  );
-})}
+                <div style={courseBody}>
+                  <h3>{course.title}</h3>
+                  {/* ⭐ RATING */}
+                  {course.avgRating > 0 && (
+                    <div style={ratingRow}>
+                      <span style={stars}>
+                        {"★".repeat(Math.round(course.avgRating))}
+                      </span>
+                      <span style={ratingText}>
+                        {course.avgRating.toFixed(1)}
+                        {course.reviewCount
+                          ? ` (${course.reviewCount})`
+                          : ""}
+                      </span>
+                    </div>
+                  )}
+                  <p style={desc}>
+                    {course.description?.substring(0, 80)}...
+                  </p>
+                  <p style={price}>₹{course.price}</p>
+                </div>
+              </div>
+            );
+          })}
 
         </div>
       </section>
@@ -233,79 +232,79 @@ function HomePage() {
           Get Started
         </button>
       </section>
-     {/* ================= FOOTER ================= */}
-<footer style={footer}>
-  <div style={footerInner}>
+      {/* ================= FOOTER ================= */}
+      <footer style={footer}>
+        <div style={footerInner}>
 
-    {/* BRAND */}
-    <div style={footerCol}>
-      <h2 style={footerLogo}>LearnSphere</h2>
-      <p style={footerText}>
-        LearnSphere is a modern e-learning platform helping students and
-        professionals build real-world skills with expert-led courses.
-      </p>
-    </div>
+          {/* BRAND */}
+          <div style={footerCol}>
+            <h2 style={footerLogo}>LearnSphere</h2>
+            <p style={footerText}>
+              LearnSphere is a modern e-learning platform helping students and
+              professionals build real-world skills with expert-led courses.
+            </p>
+          </div>
 
-    {/* PLATFORM */}
-    <div style={footerCol}>
-      <h4 style={footerTitle}>Platform</h4>
+          {/* PLATFORM */}
+          <div style={footerCol}>
+            <h4 style={footerTitle}>Platform</h4>
 
-      {[
-        { label: "Browse Courses", href: "/courses" },
-        { label: "Join for Free", href: "/register" },
-        { label: "Login", href: "/login" },
-      ].map((item) => (
-        <a
-          key={item.label}
-          href={item.href}
-          style={footerLink}
-          onMouseEnter={(e) =>
-            (e.currentTarget.lastChild.style.width = "100%")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.lastChild.style.width = "0%")
-          }
-        >
-          {item.label}
-          <span style={footerUnderline}></span>
-        </a>
-      ))}
-    </div>
+            {[
+              { label: "Browse Courses", href: "/courses" },
+              { label: "Join for Free", href: "/register" },
+              { label: "Login", href: "/login" },
+            ].map((item) => (
+              <a
+                key={item.label}
+                href={item.href}
+                style={footerLink}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.lastChild.style.width = "100%")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.lastChild.style.width = "0%")
+                }
+              >
+                {item.label}
+                <span style={footerUnderline}></span>
+              </a>
+            ))}
+          </div>
 
-    {/* RESOURCES */}
-    <div style={footerCol}>
-      <h4 style={footerTitle}>Resources</h4>
+          {/* RESOURCES */}
+          <div style={footerCol}>
+            <h4 style={footerTitle}>Resources</h4>
 
-      {["Help Center", "Privacy Policy", "Terms & Conditions"].map((text) => (
-        <span
-          key={text}
-          style={footerLink}
-          onMouseEnter={(e) =>
-            (e.currentTarget.lastChild.style.width = "100%")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.lastChild.style.width = "0%")
-          }
-        >
-          {text}
-          <span style={footerUnderline}></span>
-        </span>
-      ))}
-    </div>
+            {["Help Center", "Privacy Policy", "Terms & Conditions"].map((text) => (
+              <span
+                key={text}
+                style={footerLink}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.lastChild.style.width = "100%")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.lastChild.style.width = "0%")
+                }
+              >
+                {text}
+                <span style={footerUnderline}></span>
+              </span>
+            ))}
+          </div>
 
-    {/* CONTACT */}
-    <div style={footerCol}>
-      <h4 style={footerTitle}>Connect</h4>
-      <p style={footerText}>support@learnsphere.com</p>
-      <p style={footerText}>India 🇮🇳</p>
-    </div>
+          {/* CONTACT */}
+          <div style={footerCol}>
+            <h4 style={footerTitle}>Connect</h4>
+            <p style={footerText}>support@learnsphere.com</p>
+            <p style={footerText}>India 🇮🇳</p>
+          </div>
 
-  </div>
+        </div>
 
-  <div style={footerBottom}>
-    © {new Date().getFullYear()} LearnSphere. All rights reserved.
-  </div>
-</footer>
+        <div style={footerBottom}>
+          © {new Date().getFullYear()} LearnSphere. All rights reserved.
+        </div>
+      </footer>
 
 
     </div>

@@ -1,14 +1,14 @@
 // src/pages/StudentDashboard.jsx
 import { useEffect, useState } from "react";
-import axios from "axios";
+import apiClient from "../api/axios.js";
 
-const BACKEND_BASE = "http://localhost:5000";
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 function StudentDashboard() {
   const [courses, setCourses] = useState([]);
   const [progress, setProgress] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-const COURSES_PER_PAGE = 8;
+  const COURSES_PER_PAGE = 8;
 
   const token = localStorage.getItem("token");
   const studentName = localStorage.getItem("userName") || "Student";
@@ -23,16 +23,13 @@ const COURSES_PER_PAGE = 8;
   const resolveThumb = (thumb) => {
     if (!thumb) return null;
     if (thumb.startsWith("http")) return thumb;
-    if (thumb.startsWith("/")) return `${BACKEND_BASE}${thumb}`;
-    return `${BACKEND_BASE}/${thumb}`;
+    if (thumb.startsWith("/")) return `${API_BASE_URL}${thumb}`;
+    return `${API_BASE_URL}/${thumb}`;
   };
 
   const loadCourses = async () => {
     try {
-      const res = await axios.get(
-        "http://localhost:5000/api/courses/student/enrolled",
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await apiClient.get("/courses/student/enrolled");
       setCourses(res.data);
     } catch (err) {
       console.log("Load courses error:", err);
@@ -41,10 +38,7 @@ const COURSES_PER_PAGE = 8;
 
   const loadProgress = async () => {
     try {
-      const res = await axios.get(
-        "http://localhost:5000/api/courses/student/progress",
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await apiClient.get("/courses/student/progress");
       setProgress(res.data);
     } catch (err) {
       console.log("Load progress error:", err);
@@ -65,22 +59,22 @@ const COURSES_PER_PAGE = 8;
   };
 
   const indexOfLast = currentPage * COURSES_PER_PAGE;
-const indexOfFirst = indexOfLast - COURSES_PER_PAGE;
-const paginatedCourses = courses.slice(indexOfFirst, indexOfLast);
+  const indexOfFirst = indexOfLast - COURSES_PER_PAGE;
+  const paginatedCourses = courses.slice(indexOfFirst, indexOfLast);
 
-const totalPages = Math.ceil(courses.length / COURSES_PER_PAGE);
+  const totalPages = Math.ceil(courses.length / COURSES_PER_PAGE);
 
   return (
     <div style={page}>
       <div style={container}>
         <div style={header}>
-  <h1 style={title}>
-    Welcome back, <span style={highlight}>{studentName}</span> 👋
-  </h1>
-  <p style={subtitle}>
-    Continue your learning journey right where you left off
-  </p>
-</div>
+          <h1 style={title}>
+            Welcome back, <span style={highlight}>{studentName}</span> 👋
+          </h1>
+          <p style={subtitle}>
+            Continue your learning journey right where you left off
+          </p>
+        </div>
 
 
         {courses.length === 0 && (
@@ -96,10 +90,10 @@ const totalPages = Math.ceil(courses.length / COURSES_PER_PAGE);
 
             return (
               <div
-  key={course._id}
-  style={card}
-  className="student-course-card"
->
+                key={course._id}
+                style={card}
+                className="student-course-card"
+              >
 
                 {thumbSrc && (
                   <img
@@ -131,10 +125,10 @@ const totalPages = Math.ceil(courses.length / COURSES_PER_PAGE);
                   </div>
 
                   <button
-  onClick={() => openCourse(course)}
-  style={continueBtn}
-  className="student-continue-btn"
->
+                    onClick={() => openCourse(course)}
+                    style={continueBtn}
+                    className="student-continue-btn"
+                  >
 
                     Continue Learning →
                   </button>
@@ -144,38 +138,38 @@ const totalPages = Math.ceil(courses.length / COURSES_PER_PAGE);
           })}
         </div>
         {totalPages > 1 && (
-  <div style={pagination}>
-    <button
-      disabled={currentPage === 1}
-      onClick={() => setCurrentPage((p) => p - 1)}
-      style={pageBtn}
-    >
-      Prev
-    </button>
+          <div style={pagination}>
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((p) => p - 1)}
+              style={pageBtn}
+            >
+              Prev
+            </button>
 
-    {Array.from({ length: totalPages }).map((_, i) => (
-      <button
-        key={i}
-        onClick={() => setCurrentPage(i + 1)}
-        style={{
-          ...pageBtn,
-          background: currentPage === i + 1 ? "#2563eb" : "white",
-          color: currentPage === i + 1 ? "white" : "#111",
-        }}
-      >
-        {i + 1}
-      </button>
-    ))}
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentPage(i + 1)}
+                style={{
+                  ...pageBtn,
+                  background: currentPage === i + 1 ? "#2563eb" : "white",
+                  color: currentPage === i + 1 ? "white" : "#111",
+                }}
+              >
+                {i + 1}
+              </button>
+            ))}
 
-    <button
-      disabled={currentPage === totalPages}
-      onClick={() => setCurrentPage((p) => p + 1)}
-      style={pageBtn}
-    >
-      Next
-    </button>
-  </div>
-)}
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((p) => p + 1)}
+              style={pageBtn}
+            >
+              Next
+            </button>
+          </div>
+        )}
 
       </div>
     </div>

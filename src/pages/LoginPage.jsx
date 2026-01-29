@@ -1,6 +1,6 @@
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import apiClient from "../api/axios.js";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -13,7 +13,7 @@ function LoginPage() {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
+      const res = await apiClient.post("/auth/login", {
         email,
         password,
       });
@@ -56,31 +56,31 @@ function LoginPage() {
           />
 
           <div style={{ position: "relative" }}>
-  <input
-    type={showPassword ? "text" : "password"}
-    placeholder="Password"
-    value={password}
-    onChange={(e) => setPassword(e.target.value)}
-    style={{ ...input, paddingRight: 44 }}
-    required
-  />
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={{ ...input, paddingRight: 44 }}
+              required
+            />
 
-  <span
-    onClick={() => setShowPassword(!showPassword)}
-    style={{
-      position: "absolute",
-      right: 14,
-      top: "50%",
-      transform: "translateY(-50%)",
-      cursor: "pointer",
-      fontSize: 14,
-      color: "#475569",
-      userSelect: "none",
-    }}
-  >
-    {showPassword ? "👁" : "⌣"}
-  </span>
-</div>
+            <span
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                position: "absolute",
+                right: 14,
+                top: "50%",
+                transform: "translateY(-50%)",
+                cursor: "pointer",
+                fontSize: 14,
+                color: "#475569",
+                userSelect: "none",
+              }}
+            >
+              {showPassword ? "👁" : "⌣"}
+            </span>
+          </div>
 
 
           <button type="submit" style={button}>

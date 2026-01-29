@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-
-const BACKEND = "http://localhost:5000";
+import apiClient from "../../api/axios.js";
 
 function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -16,9 +14,7 @@ function AdminUsers() {
 
   const loadUsers = async () => {
     try {
-      const res = await axios.get(`${BACKEND}/api/admin/users`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiClient.get(`/admin/users`);
       setUsers(res.data || []);
     } catch (err) {
       console.error("Failed to load users", err);
@@ -31,9 +27,7 @@ function AdminUsers() {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
 
     try {
-      await axios.delete(`${BACKEND}/api/admin/users/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await apiClient.delete(`/admin/users/${userId}`);
 
       loadUsers();
     } catch (err) {
@@ -168,8 +162,8 @@ const roleBadge = (role) => ({
     role === "admin"
       ? "#6366f1"
       : role === "instructor"
-      ? "#f59e0b"
-      : "#22c55e",
+        ? "#f59e0b"
+        : "#22c55e",
 });
 
 const deleteBtn = {

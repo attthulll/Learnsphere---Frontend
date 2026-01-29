@@ -1,8 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import axios from "axios";
-
-const BACKEND = "http://localhost:5000";
+import apiClient from "../api/axios.js";
 
 function EditCoursePage() {
   const { courseId } = useParams();
@@ -25,35 +23,28 @@ function EditCoursePage() {
   }, []);
 
   /* ---------------- FETCH COURSE ---------------- */
-const fetchCourse = async () => {
-  try {
-    const res = await axios.get(
-      `${BACKEND}/api/courses/view/${courseId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+  const fetchCourse = async () => {
+    try {
+      const res = await apiClient.get(`/courses/view/${courseId}`);
 
-    const course = res.data.course;
-    setTitle(course.title);
-    setDescription(course.description);
-    setPrice(course.price);
-    setCategoryId(course.category?._id || "");
-  } catch (err) {
-    console.error("Load course error:", err);
-    alert("Failed to load course data");
-  } finally {
-    setLoading(false);
-  }
-};
+      const course = res.data.course;
+      setTitle(course.title);
+      setDescription(course.description);
+      setPrice(course.price);
+      setCategoryId(course.category?._id || "");
+    } catch (err) {
+      console.error("Load course error:", err);
+      alert("Failed to load course data");
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   /* ---------------- FETCH CATEGORIES ---------------- */
   const fetchCategories = async () => {
     try {
-      const res = await axios.get(`${BACKEND}/api/categories`);
+      const res = await apiClient.get(`/categories`);
       setCategories(res.data);
     } catch (err) {
       console.error("Load categories error:", err);
@@ -73,16 +64,11 @@ const fetchCourse = async () => {
       if (categoryId) formData.append("category", categoryId);
       if (thumbnail) formData.append("thumbnail", thumbnail);
 
-      await axios.put(
-        `${BACKEND}/api/courses/${courseId}/edit`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      await apiClient.put(`/courses/${courseId}/edit`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       alert("Course updated successfully!");
       navigate(`/course/${courseId}`);

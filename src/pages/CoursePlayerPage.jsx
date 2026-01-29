@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import apiClient from "../api/axios.js";
 
 function CoursePlayerPage() {
   const { courseId, moduleId } = useParams();
@@ -17,10 +17,7 @@ function CoursePlayerPage() {
 
   const loadCourse = async () => {
     try {
-      const res = await axios.get(
-        `http://localhost:5000/api/courses/${courseId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await apiClient.get(`/courses/${courseId}`);
 
       setCourse(res.data.course);
 
@@ -37,10 +34,7 @@ function CoursePlayerPage() {
 
   const loadCompleted = async () => {
     try {
-      const res = await axios.get(
-        "http://localhost:5000/api/courses/student/progress",
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await apiClient.get("/courses/student/progress");
 
       const courseProgress = res.data.find(
         (p) => p.courseId === courseId
@@ -58,11 +52,7 @@ function CoursePlayerPage() {
     try {
       const module = course.modules[currentIndex];
 
-      await axios.post(
-        `http://localhost:5000/api/courses/${courseId}/${module._id}/complete`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await apiClient.put(`/courses/${courseId}/${module._id}/complete`, {});
 
       setCompleted((prev) => [...prev, module._id]);
     } catch (err) {

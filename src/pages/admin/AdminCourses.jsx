@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-
-const BACKEND = "http://localhost:5000";
+import apiClient from "../../api/axios.js";
 
 function AdminCourses() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-const COURSES_PER_PAGE = 8;
+  const COURSES_PER_PAGE = 8;
 
 
   const token = localStorage.getItem("token");
@@ -19,9 +17,7 @@ const COURSES_PER_PAGE = 8;
 
   const loadCourses = async () => {
     try {
-      const res = await axios.get(`${BACKEND}/api/admin/courses`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiClient.get(`/admin/courses`);
       setCourses(res.data || []);
     } catch (err) {
       console.error("Failed to load courses", err);
@@ -34,9 +30,7 @@ const COURSES_PER_PAGE = 8;
     if (!window.confirm("Delete this course permanently?")) return;
 
     try {
-      await axios.delete(`${BACKEND}/api/admin/courses/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await apiClient.delete(`/admin/courses/${id}`);
       loadCourses();
     } catch (err) {
       alert("Delete failed");
@@ -46,12 +40,12 @@ const COURSES_PER_PAGE = 8;
   if (loading) {
     return <h2>Loading courses...</h2>;
   }
-  
-const indexOfLast = currentPage * COURSES_PER_PAGE;
-const indexOfFirst = indexOfLast - COURSES_PER_PAGE;
-const paginatedCourses = courses.slice(indexOfFirst, indexOfLast);
 
-const totalPages = Math.ceil(courses.length / COURSES_PER_PAGE);
+  const indexOfLast = currentPage * COURSES_PER_PAGE;
+  const indexOfFirst = indexOfLast - COURSES_PER_PAGE;
+  const paginatedCourses = courses.slice(indexOfFirst, indexOfLast);
+
+  const totalPages = Math.ceil(courses.length / COURSES_PER_PAGE);
 
 
   return (
@@ -101,38 +95,38 @@ const totalPages = Math.ceil(courses.length / COURSES_PER_PAGE);
       </div>
       {/* PAGINATION */}
       {totalPages > 1 && (
-  <div style={pagination}>
-    <button
-      disabled={currentPage === 1}
-      onClick={() => setCurrentPage((p) => p - 1)}
-      style={pageBtn}
-    >
-      Prev
-    </button>
+        <div style={pagination}>
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((p) => p - 1)}
+            style={pageBtn}
+          >
+            Prev
+          </button>
 
-    {Array.from({ length: totalPages }).map((_, i) => (
-      <button
-        key={i}
-        onClick={() => setCurrentPage(i + 1)}
-        style={{
-          ...pageBtn,
-          background: currentPage === i + 1 ? "#2563eb" : "white",
-          color: currentPage === i + 1 ? "white" : "#111",
-        }}
-      >
-        {i + 1}
-      </button>
-    ))}
+          {Array.from({ length: totalPages }).map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentPage(i + 1)}
+              style={{
+                ...pageBtn,
+                background: currentPage === i + 1 ? "#2563eb" : "white",
+                color: currentPage === i + 1 ? "white" : "#111",
+              }}
+            >
+              {i + 1}
+            </button>
+          ))}
 
-    <button
-      disabled={currentPage === totalPages}
-      onClick={() => setCurrentPage((p) => p + 1)}
-      style={pageBtn}
-    >
-      Next
-    </button>
-  </div>
-)}
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((p) => p + 1)}
+            style={pageBtn}
+          >
+            Next
+          </button>
+        </div>
+      )}
 
     </div>
   );

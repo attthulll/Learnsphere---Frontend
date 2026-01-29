@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
-
-const BACKEND = "http://localhost:5000";
+import apiClient from "../api/axios.js";
 
 function CourseCertificatePage() {
   const { courseId } = useParams();
@@ -16,11 +14,8 @@ function CourseCertificatePage() {
 
   const loadCertificate = async () => {
     try {
-      const res = await axios.get(
-        `${BACKEND}/api/courses/${courseId}/certificate`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      const res = await apiClient.get(
+        `/courses/${courseId}/certificate`
       );
       setData(res.data);
     } catch (err) {

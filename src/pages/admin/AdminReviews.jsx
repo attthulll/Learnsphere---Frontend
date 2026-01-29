@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-
-const BACKEND = "http://localhost:5000";
+import apiClient from "../../api/axios.js";
 
 function AdminReviews() {
   const [reviews, setReviews] = useState([]);
@@ -14,9 +12,7 @@ function AdminReviews() {
 
   const loadReviews = async () => {
     try {
-      const res = await axios.get(`${BACKEND}/api/admin/reviews`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiClient.get(`/admin/reviews`);
       setReviews(res.data);
     } catch (err) {
       console.error("Load reviews error:", err);
@@ -27,11 +23,8 @@ function AdminReviews() {
     if (!window.confirm("Delete this review?")) return;
 
     try {
-      await axios.delete(
-        `${BACKEND}/api/admin/reviews/${courseId}/${reviewId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      await apiClient.delete(
+        `/admin/reviews/${courseId}/${reviewId}`
       );
       loadReviews();
     } catch (err) {
@@ -74,7 +67,7 @@ const page = {
 };
 
 const title = {
-    color: "#111827",
+  color: "#111827",
   fontSize: 36,
   marginBottom: 30,
 };
