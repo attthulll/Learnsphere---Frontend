@@ -32,7 +32,7 @@ import AdminInstructorRequests from "./pages/admin/AdminInstructorRequests";
 
 
 
-import Navbar from "./components/Navbar";
+import Navbar from "./Components/Navbar";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 import StudentRoute from "./routes/StudentRoute";
